@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vib3 Code | AI & Visual Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=DM+Sans:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+      
+      :root {
+        --aqua-bright: #4FC3F7;
+        --aqua-soft: #80DEEA;
+        --teal: #26A69A;
+        --purple: #7B3FF2;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #020617;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        user-select: none; /* App-like feel */
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'DM Sans', sans-serif;
+      }
+      
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      canvas {
+        display: block;
+      }
+
+      /* --- 3D Transform Utilities --- */
+      .perspective-1000 { perspective: 1000px; }
+      .perspective-2000 { perspective: 2000px; }
+      .preserve-3d { transform-style: preserve-3d; }
+      .backface-hidden { backface-visibility: hidden; }
+
+      /* --- Scrollbar --- */
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(79, 195, 247, 0.2); border-radius: 2px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(79, 195, 247, 0.5); }
+
+      /* --- VAPORWAVE / GLITCH FX --- */
+
+      /* CRT Scanlines */
+      .scanlines {
+        background: linear-gradient(
+          to bottom,
+          rgba(255,255,255,0),
+          rgba(255,255,255,0) 50%,
+          rgba(0,0,0,0.1) 50%,
+          rgba(0,0,0,0.1)
+        );
+        background-size: 100% 3px;
+        pointer-events: none;
+        z-index: 9999;
+      }
+
+      /* Moiré Pattern */
+      .moire-grid {
+        background-image: radial-gradient(circle, transparent 20%, #000 20%, #000 80%, transparent 80%, transparent);
+        background-size: 8px 8px;
+      }
+
+      /* Text Neon Shadow */
+      .text-shadow-neon {
+        text-shadow: 0 0 5px rgba(79, 195, 247, 0.6), 0 0 10px rgba(79, 195, 247, 0.4);
+      }
+
+      /* Base Liquid Morphing Card (Fallback) */
+      .liquid-card {
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+      }
+      
+      /* Glitch Text Effect */
+      .glitch-hover {
+        position: relative;
+        display: inline-block;
+      }
+      .glitch-hover::before,
+      .glitch-hover::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #020617;
+        opacity: 0.5;
+      }
+      .glitch-hover::before {
+        left: 2px;
+        text-shadow: -1px 0 #ff00c1;
+        clip: rect(44px, 450px, 56px, 0);
+        animation: glitch-anim 5s infinite linear alternate-reverse;
+        display: none;
+      }
+      .glitch-hover::after {
+        left: -2px;
+        text-shadow: -1px 0 #00fff9;
+        clip: rect(44px, 450px, 56px, 0);
+        animation: glitch-anim2 5s infinite linear alternate-reverse;
+        display: none;
+      }
+      .group:hover .glitch-hover::before,
+      .group:hover .glitch-hover::after {
+        display: block;
+      }
+
+      @keyframes glitch-anim {
+        0% { clip: rect(18px, 9999px, 11px, 0); }
+        20% { clip: rect(68px, 9999px, 82px, 0); }
+        40% { clip: rect(13px, 9999px, 64px, 0); }
+        60% { clip: rect(63px, 9999px, 19px, 0); }
+        80% { clip: rect(84px, 9999px, 75px, 0); }
+        100% { clip: rect(4px, 9999px, 22px, 0); }
+      }
+      @keyframes glitch-anim2 {
+        0% { clip: rect(65px, 9999px, 95px, 0); }
+        20% { clip: rect(12px, 9999px, 5px, 0); }
+        40% { clip: rect(56px, 9999px, 26px, 0); }
+        60% { clip: rect(33px, 9999px, 88px, 0); }
+        80% { clip: rect(96px, 9999px, 22px, 0); }
+        100% { clip: rect(6px, 9999px, 89px, 0); }
+      }
+
+      /* Blend Modes */
+      .blend-exclusion { mix-blend-mode: exclusion; }
+      .blend-hard-light { mix-blend-mode: hard-light; }
+      .blend-color-dodge { mix-blend-mode: color-dodge; }
+      
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "react/": "https://aistudiocdn.com/react@^19.2.0/",
+          "react": "https://aistudiocdn.com/react@^19.2.0",
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+          "gsap/": "https://aistudiocdn.com/gsap@^3.13.0/",
+          "gsap": "https://aistudiocdn.com/gsap@^3.13.0",
+          "gsap/ScrollTrigger": "https://aistudiocdn.com/gsap@^3.13.0/ScrollTrigger"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
