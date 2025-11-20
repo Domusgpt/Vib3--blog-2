@@ -79,34 +79,32 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect 
     }, [activeIndex, theta]);
 
     return (
-        <nav 
+        <nav
             ref={navRef}
             onMouseEnter={resetAutoHide}
             onMouseMove={resetAutoHide}
-            className="fixed top-0 left-0 w-full h-[80px] z-50 flex justify-center pointer-events-none -translate-y-full"
+            className="fixed top-0 left-0 w-full h-[90px] z-50 flex justify-center pointer-events-none -translate-y-full"
         >
-            {/* --- TECH BEZEL CONTAINER --- */}
             <div className="relative mt-2 pointer-events-auto">
-                {/* Housing */}
-                <div className="w-[400px] md:w-[600px] h-[50px] bg-slate-950/90 backdrop-blur-xl border-x border-b border-cyan-500/20 rounded-b-xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] flex items-center justify-center overflow-hidden relative group">
-                    
-                    {/* Decor: Top Glow Line */}
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
-                    
-                    {/* Decor: Scanlines */}
-                    <div className="absolute inset-0 scanlines opacity-20 pointer-events-none" />
+                <div className="w-[420px] md:w-[680px] h-[62px] bg-slate-950/95 backdrop-blur-xl border-x border-b border-cyan-500/20 rounded-b-2xl shadow-[0_10px_60px_rgba(0,0,0,0.55)] flex items-center justify-center overflow-hidden relative group">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-60" />
+                    <div className="absolute inset-0 scanlines opacity-15 pointer-events-none" />
 
-                    {/* --- 3D DRUM --- */}
-                    <div className="w-full h-full perspective-1000 flex items-center justify-center">
-                        <div 
+                    <div className="absolute inset-y-2 left-6 flex items-center gap-3 text-[11px] uppercase font-mono tracking-[0.3em] text-slate-400">
+                        <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                        <span>revolver nav</span>
+                    </div>
+
+                    <div className="w-full h-full perspective-2000 flex items-center justify-center">
+                        <div
                             ref={cylinderRef}
                             className="preserve-3d relative w-full h-full"
-                            style={{ transformOrigin: 'center center -30px' }} 
+                            style={{ transformOrigin: 'center center -30px' }}
                         >
                             {SECTIONS.map((section, index) => {
                                 const angle = index * theta;
                                 const isActive = index === activeIndex;
-                                
+
                                 return (
                                     <button
                                         key={section.id}
@@ -116,30 +114,32 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect 
                                         }}
                                         className={`
                                             absolute top-1/2 left-1/2
-                                            w-full h-[40px]
-                                            -ml-[50%] -mt-[20px]
-                                            flex items-center justify-center gap-4
+                                            w-full h-[48px]
+                                            -ml-[50%] -mt-[24px]
+                                            flex flex-col items-center justify-center gap-0.5
                                             transition-all duration-300
                                             backface-hidden
-                                            ${isActive 
-                                                ? 'text-cyan-400 text-shadow-neon' 
+                                            ${isActive
+                                                ? 'text-cyan-300 text-shadow-neon drop-shadow-[0_0_15px_rgba(103,232,249,0.35)]'
                                                 : 'text-slate-600 hover:text-slate-300'}
                                         `}
                                         style={{
                                             transform: `rotateX(${angle}deg) translateZ(${radius}px)`
                                         }}
                                     >
-                                        <span className="font-mono text-sm md:text-base opacity-80">{section.icon}</span>
-                                        <span className={`font-sans font-bold uppercase tracking-[0.2em] text-xs md:text-sm ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-                                            {section.title}
-                                        </span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-mono text-sm md:text-base opacity-80">{section.icon}</span>
+                                            <span className={`font-sans font-bold uppercase tracking-[0.24em] text-[10px] md:text-sm ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                                                {section.title}
+                                            </span>
+                                        </div>
+                                        <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-cyan-200/60">{section.subtitle}</span>
                                     </button>
                                 );
                             })}
                         </div>
                     </div>
 
-                    {/* Decor: Side Brackets */}
                     <div className="absolute left-0 top-0 bottom-0 w-4 border-r border-cyan-500/10 bg-gradient-to-r from-cyan-500/5 to-transparent" />
                     <div className="absolute right-0 top-0 bottom-0 w-4 border-l border-cyan-500/10 bg-gradient-to-l from-cyan-500/5 to-transparent" />
                 </div>
