@@ -14,6 +14,12 @@ Revolver-driven, WebGL-backed blog experience with morphing feature cards, GSAP 
 3. Start dev server: `npm run dev`
 4. Build for production: `npm run build`
 
+## Deployment (GitHub Actions + Pages)
+- A ready-to-enable GitHub Actions workflow lives at `.github/workflows/deploy.yml`.
+- To deploy: enable GitHub Pages in the repo settings, point it to the `GitHub Actions` source, and ensure the default branch is `main`.
+- The workflow builds with `npm ci && npm run build`, uploads `dist/` as the Pages artifact, and deploys via `actions/deploy-pages` on pushes to `main` or manual dispatch.
+- If you change dependencies, commit the updated `package-lock.json` so the CI cache and installs stay deterministic.
+
 ## Documentation
 - [Architecture](docs/ARCHITECTURE.md): component map, event/state flow, and extensibility notes.
 - [Content & Operations](docs/CONTENT_OPERATIONS.md): how to add sections, cards, QA data, and copy guidelines.
