@@ -44,6 +44,12 @@ This runbook summarizes how the VIB3 blog should evolve toward a fully managed, 
 - CI/CD: lint/test/build pipeline with preview deploys per PR.
 - Accessibility: keyboard navigation, focus traps in overlays, ARIA labels, and lazy loading where applicable.
 
+## 7b) Triggering GitHub Pages Builds
+- Default path: push to `main` or use the **Run workflow** button on the `Build and Deploy` workflow in GitHub Actions.
+- CLI path (recommended for agents/humans): run `npm run deploy:dispatch -- --repo <owner/name> --ref <branch>` with `GITHUB_TOKEN` exported. This calls the workflow dispatch API for `.github/workflows/deploy.yml`.
+- Required env: `GITHUB_TOKEN` (repo scope), optionally `GITHUB_REPOSITORY` to avoid passing `--repo`. The script reports failures with the API response body for quick debugging.
+- Ensure GitHub Pages is enabled in repo settings and configured to use **GitHub Actions** as the source before dispatching.
+
 ## 8) Collaboration with AI Agents
 - Agent queue widget should display incoming drafts/configs, validation status, and required human actions.
 - Support assignment tags, due dates, and quick AI assist actions (summarize/expand/suggest titles) with human confirmation.

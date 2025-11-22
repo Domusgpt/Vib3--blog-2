@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:dispatch": "node scripts/dispatch-deploy.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",

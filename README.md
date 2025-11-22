@@ -19,6 +19,7 @@ Revolver-driven, WebGL-backed blog experience with morphing feature cards, GSAP 
 - To deploy: enable GitHub Pages in the repo settings, point it to the `GitHub Actions` source, and ensure the default branch is `main`.
 - The workflow builds with `npm ci && npm run build`, uploads `dist/` as the Pages artifact, and deploys via `actions/deploy-pages` on pushes to `main` or manual dispatch.
 - If you change dependencies, commit the updated `package-lock.json` so the CI cache and installs stay deterministic.
+- To trigger a deploy without a commit, export `GITHUB_TOKEN` and run `npm run deploy:dispatch -- --repo <owner/name> --ref <branch>` (defaults to `deploy.yml` and `main`). You can also hit **Run workflow** in GitHub Actions UI.
 
 ## Documentation
 - [Architecture](docs/ARCHITECTURE.md): component map, event/state flow, and extensibility notes.
