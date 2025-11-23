@@ -49,6 +49,7 @@ This runbook summarizes how the VIB3 blog should evolve toward a fully managed, 
 - CLI path (recommended for agents/humans): run `npm run deploy:dispatch -- --repo <owner/name> --ref <branch>` with `GITHUB_TOKEN` exported. This calls the workflow dispatch API for `.github/workflows/deploy.yml`.
 - Required env: `GITHUB_TOKEN` (repo scope), optionally `GITHUB_REPOSITORY` to avoid passing `--repo`. The script reports failures with the API response body for quick debugging.
 - Ensure GitHub Pages is enabled in repo settings and configured to use **GitHub Actions** as the source before dispatching.
+- The in-app Ops Dashboard now has a **Deploy** tab with a copy-to-clipboard command builder (no secrets stored) plus local-only logging of your last dispatch status for quick rehearsal.
 
 ## 8) Collaboration with AI Agents
 - Agent queue widget should display incoming drafts/configs, validation status, and required human actions.

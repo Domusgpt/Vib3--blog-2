@@ -4,6 +4,7 @@ import {
     COMMENTS_PIPELINE,
     CONTENT_PIPELINE,
     EDITOR_WORKFLOWS,
+    DEPLOYMENT_PLAYBOOK,
     OBSERVABILITY_CHECKS,
     PUBLICATION_STANDARDS,
     STORAGE_APIS,
@@ -11,9 +12,9 @@ import {
 } from '../../constants';
 import { loadState, saveState } from '../../services/localStore';
 
-type TabKey = 'overview' | 'auth' | 'editor' | 'comments' | 'content' | 'publishing' | 'ops';
+type TabKey = 'overview' | 'auth' | 'editor' | 'comments' | 'content' | 'publishing' | 'deploy' | 'ops';
 
-const tabOrder: TabKey[] = ['overview', 'auth', 'editor', 'comments', 'content', 'publishing', 'ops'];
+const tabOrder: TabKey[] = ['overview', 'auth', 'editor', 'comments', 'content', 'publishing', 'deploy', 'ops'];
 const badgeStyle = 'px-2 py-1 rounded-full text-[10px] font-mono uppercase tracking-[0.25em] bg-white/10 border border-white/10';
 
 type DashboardUser = {
@@ -51,6 +52,14 @@ type ImportRecord = {
     status: 'applied' | 'error' | 'draft';
     createdAt: string;
     detail: string;
+};
+
+type DeployRecord = {
+    repo: string;
+    ref: string;
+    status: 'success' | 'failed' | 'dry-run';
+    note?: string;
+    timestamp: string;
 };
 
 interface OperationsDashboardProps {
@@ -103,6 +112,17 @@ const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onClose }) =>
         ])
     );
 
+    const [deployConfig, setDeployConfig] = useState(() =>
+        loadState('vib3.ops.deploy.config', {
+            repo: 'owner/name',
+            ref: 'main',
+        })
+    );
+    const [deployStatus, setDeployStatus] = useState<DeployRecord['status']>('dry-run');
+    const [deployNote, setDeployNote] = useState('');
+    const [lastDeploy, setLastDeploy] = useState<DeployRecord | null>(() => loadState<DeployRecord | null>('vib3.ops.deploy.last', null));
+    const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+
     const [newUser, setNewUser] = useState({ email: '', displayName: '', role: 'viewer' as DashboardUser['role'] });
     const [loginEmail, setLoginEmail] = useState('');
     const [newComment, setNewComment] = useState({ post: '', author: '', body: '' });
@@ -116,6 +136,8 @@ const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onClose }) =>
     useEffect(() => saveState('vib3.ops.comments', comments), [comments]);
     useEffect(() => saveState('vib3.ops.schedule', scheduledPosts), [scheduledPosts]);
     useEffect(() => saveState('vib3.ops.imports', imports), [imports]);
+    useEffect(() => saveState('vib3.ops.deploy.config', deployConfig), [deployConfig]);
+    useEffect(() => saveState('vib3.ops.deploy.last', lastDeploy), [lastDeploy]);
 
     const tabCopy: Record<TabKey, string> = useMemo(
         () => ({
@@ -125,6 +147,7 @@ const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onClose }) =>
             comments: 'Community moderation',
             content: 'JSON pipelines',
             publishing: 'SEO + governance',
+            deploy: 'Deploy & Pages',
             ops: 'Storage + observability'
         }),
         []
@@ -197,6 +220,34 @@ const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onClose }) =>
             createdAt: new Date().toISOString()
         };
         setImports([record, ...imports].slice(0, 6));
+    };
+
+    const dispatchCommand = useMemo(
+        () => `GITHUB_TOKEN=<your_token> npm run deploy:dispatch -- --repo ${deployConfig.repo} --ref ${deployConfig.ref}`,
+        [deployConfig.ref, deployConfig.repo]
+    );
+
+    const handleCopyCommand = async () => {
+        try {
+            await navigator.clipboard?.writeText(dispatchCommand);
+            setCopyState('copied');
+            setTimeout(() => setCopyState('idle'), 2000);
+        } catch (error) {
+            console.error(error);
+            setCopyState('error');
+        }
+    };
+
+    const handleRecordDeploy = () => {
+        const record: DeployRecord = {
+            repo: deployConfig.repo,
+            ref: deployConfig.ref,
+            status: deployStatus,
+            note: deployNote,
+            timestamp: new Date().toISOString(),
+        };
+        setLastDeploy(record);
+        setDeployNote('');
     };
 
     const renderTeamRole = (role: TeamRole) => (
@@ -657,6 +708,151 @@ const OperationsDashboard: React.FC<OperationsDashboardProps> = ({ onClose }) =>
                                     <div key={item.label} className="p-3 rounded-xl bg-white/5 border border-white/10">
                                         <div className="font-semibold text-white">{item.label}</div>
                                         <p className="text-slate-300/80">{item.detail}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'deploy' && (
+                    <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] items-start">
+                        <div className="p-5 rounded-3xl bg-white/5 border border-white/10 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="text-[11px] uppercase tracking-[0.3em] text-slate-300 font-mono">GitHub Pages deploy</div>
+                                <div className={badgeStyle}>actions</div>
+                            </div>
+                            <p className="text-slate-200 leading-relaxed text-sm">
+                                Enable Pages → GitHub Actions, verify the default branch, and then dispatch the workflow from the Actions UI or CLI helper.
+                                The command builder keeps your repo/ref handy without storing secrets.
+                            </p>
+
+                            <div className="grid md:grid-cols-3 gap-3 text-sm text-slate-200">
+                                {DEPLOYMENT_PLAYBOOK.prerequisites.map((item) => (
+                                    <div key={item.label} className="p-3 rounded-2xl bg-white/5 border border-white/10">
+                                        <div className="font-semibold text-white">{item.label}</div>
+                                        <p className="text-slate-300/80 leading-relaxed">{item.detail}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="text-[11px] uppercase tracking-[0.25em] text-slate-300 font-mono">Dispatch helper</div>
+                                    <span className={badgeStyle}>cli</span>
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-3">
+                                    <div className="space-y-2 text-sm text-slate-200">
+                                        <label className="text-xs text-slate-400 font-mono">Repo (owner/name)</label>
+                                        <input
+                                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 focus:outline-none"
+                                            value={deployConfig.repo}
+                                            onChange={(e) => setDeployConfig({ ...deployConfig, repo: e.target.value })}
+                                        />
+                                        <label className="text-xs text-slate-400 font-mono">Ref/branch</label>
+                                        <input
+                                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 focus:outline-none"
+                                            value={deployConfig.ref}
+                                            onChange={(e) => setDeployConfig({ ...deployConfig, ref: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2 text-sm text-slate-200">
+                                        <div className="text-xs text-slate-400 font-mono">Command</div>
+                                        <div className="p-3 rounded-xl bg-black/40 border border-white/10 font-mono text-xs break-words">
+                                            {dispatchCommand}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2 items-center">
+                                            <button onClick={handleCopyCommand} className="px-3 py-2 rounded-xl bg-white text-slate-900 font-semibold">
+                                                Copy command
+                                            </button>
+                                            <span className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                                                {copyState === 'copied' ? 'copied' : copyState === 'error' ? 'copy failed' : 'no secrets stored'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-slate-400">Export a repo-scoped GITHUB_TOKEN in your shell before running.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2 text-sm text-slate-200">
+                                <div className="flex items-center justify-between">
+                                    <div className="text-[11px] uppercase tracking-[0.25em] text-slate-300 font-mono">Record last dispatch</div>
+                                    <span className={badgeStyle}>local only</span>
+                                </div>
+                                <div className="grid md:grid-cols-3 gap-3">
+                                    <div className="space-y-2">
+                                        <label className="text-xs text-slate-400 font-mono">Status</label>
+                                        <select
+                                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 focus:outline-none"
+                                            value={deployStatus}
+                                            onChange={(e) => setDeployStatus(e.target.value as DeployRecord['status'])}
+                                        >
+                                            <option value="success">success</option>
+                                            <option value="dry-run">dry-run</option>
+                                            <option value="failed">failed</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="text-xs text-slate-400 font-mono">Notes</label>
+                                        <input
+                                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 focus:outline-none"
+                                            placeholder="e.g., workflow_dispatch from local machine"
+                                            value={deployNote}
+                                            onChange={(e) => setDeployNote(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <button onClick={handleRecordDeploy} className="px-4 py-2 rounded-xl bg-emerald-400 text-slate-900 font-semibold">
+                                    Save status
+                                </button>
+                                {lastDeploy && (
+                                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-200">
+                                        <div className="flex items-center justify-between">
+                                            <div className="font-semibold text-white">{lastDeploy.repo}</div>
+                                            <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400">{lastDeploy.status}</span>
+                                        </div>
+                                        <p className="text-slate-300/80">Ref: {lastDeploy.ref}</p>
+                                        {lastDeploy.note && <p className="text-slate-400">Note: {lastDeploy.note}</p>}
+                                        <p className="text-slate-500">{new Date(lastDeploy.timestamp).toLocaleString()}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="p-5 rounded-3xl bg-white/5 border border-white/10 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="text-[11px] uppercase tracking-[0.3em] text-slate-300 font-mono">Readiness & troubleshooting</div>
+                                <div className={badgeStyle}>pages</div>
+                            </div>
+
+                            <div className="grid sm:grid-cols-2 gap-3 text-sm text-slate-200">
+                                {DEPLOYMENT_PLAYBOOK.readiness.map((item) => (
+                                    <div key={item.label} className="p-3 rounded-2xl bg-white/5 border border-white/10">
+                                        <div className="font-semibold text-white">{item.label}</div>
+                                        <p className="text-slate-300/80">{item.value}</p>
+                                        <p className="text-slate-400 text-xs">{item.hint}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2 text-sm text-slate-200">
+                                <div className="text-xs text-slate-400 font-mono">Troubleshooting</div>
+                                {DEPLOYMENT_PLAYBOOK.troubleshooting.map((item) => (
+                                    <div key={item.label} className="p-3 rounded-xl bg-white/5 border border-white/10">
+                                        <div className="font-semibold text-white">{item.label}</div>
+                                        <p className="text-slate-300/80">{item.detail}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-slate-200 space-y-1">
+                                <div className="text-[11px] uppercase tracking-[0.25em] font-mono text-slate-300">Quick links</div>
+                                {DEPLOYMENT_PLAYBOOK.commands.map((cmd) => (
+                                    <div key={cmd.label} className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <div className="font-semibold text-white">{cmd.label}</div>
+                                            <p className="text-slate-300/80">{cmd.detail}</p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

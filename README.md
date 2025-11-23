@@ -16,10 +16,14 @@ Revolver-driven, WebGL-backed blog experience with morphing feature cards, GSAP 
 
 ## Deployment (GitHub Actions + Pages)
 - A ready-to-enable GitHub Actions workflow lives at `.github/workflows/deploy.yml`.
-- To deploy: enable GitHub Pages in the repo settings, point it to the `GitHub Actions` source, and ensure the default branch is `main`.
+- Enable GitHub Pages → Source: **GitHub Actions**. Ensure the default branch is `main` (or update the workflow ref if you ship from another branch).
 - The workflow builds with `npm ci && npm run build`, uploads `dist/` as the Pages artifact, and deploys via `actions/deploy-pages` on pushes to `main` or manual dispatch.
 - If you change dependencies, commit the updated `package-lock.json` so the CI cache and installs stay deterministic.
-- To trigger a deploy without a commit, export `GITHUB_TOKEN` and run `npm run deploy:dispatch -- --repo <owner/name> --ref <branch>` (defaults to `deploy.yml` and `main`). You can also hit **Run workflow** in GitHub Actions UI.
+- To trigger a deploy without a commit, export a repo-scoped `GITHUB_TOKEN` and run:
+  ```bash
+  npm run deploy:dispatch -- --repo <owner/name> --ref <branch>
+  ```
+  You can also hit **Run workflow** in GitHub Actions UI. The Ops Dashboard now includes a Deploy tab with a copy-ready command builder that never stores secrets.
 
 ## Documentation
 - [Architecture](docs/ARCHITECTURE.md): component map, event/state flow, and extensibility notes.

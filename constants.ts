@@ -578,6 +578,39 @@ export const OBSERVABILITY_CHECKS = [
     { label: 'CI/CD', detail: 'Lint/test/build pipeline and preview deploy per PR.' },
 ];
 
+export const DEPLOYMENT_PLAYBOOK = {
+    prerequisites: [
+        { label: 'Pages source', detail: 'Enable GitHub Pages and pick “GitHub Actions” as the source before dispatching.' },
+        { label: 'Default branch', detail: 'Ensure `main` is default (or adjust the workflow ref) so pushes trigger deploys.' },
+        { label: 'Repo token', detail: 'Repo-scoped `GITHUB_TOKEN` for the dispatch script or Actions UI run.' },
+    ],
+    commands: [
+        {
+            label: 'Actions UI',
+            detail: 'Open Actions → “Build and Deploy” → “Run workflow” to deploy the current branch.',
+        },
+        {
+            label: 'CLI dispatch',
+            detail:
+                'Export GITHUB_TOKEN then run npm run deploy:dispatch -- --repo <owner/name> --ref <branch> (defaults: main, deploy.yml).',
+        },
+        {
+            label: 'Local build check',
+            detail: 'npm install && npm run build to validate the Pages artifact before shipping.',
+        },
+    ],
+    readiness: [
+        { label: 'Artifacts', value: 'dist/', hint: 'Vite build output uploaded via upload-pages-artifact.' },
+        { label: 'Determinism', value: 'npm ci', hint: 'Package lock ensures repeatable installs on CI.' },
+        { label: 'Custom domains', value: 'optional', hint: 'Set Pages domain + HTTPS after first deploy if desired.' },
+    ],
+    troubleshooting: [
+        { label: '403 dispatch', detail: 'Token scope or repo mismatch—set `--repo owner/name` or GITHUB_REPOSITORY env.' },
+        { label: 'Missing build', detail: 'Run npm run build locally; ensure `dist/` exists and imports stay relative.' },
+        { label: 'Pages disabled', detail: 'Re-enable Pages after repo privacy/visibility changes before rerunning workflows.' },
+    ],
+};
+
 export const PUBLICATION_STANDARDS = {
     quality: [
         { label: 'Editorial QA', detail: 'Dual review for accuracy, tone, and claims with tracked approvals.', status: 'ready' },
