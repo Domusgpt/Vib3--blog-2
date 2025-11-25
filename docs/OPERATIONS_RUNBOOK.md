@@ -48,7 +48,7 @@ This runbook summarizes how the VIB3 blog should evolve toward a fully managed, 
 - Default path: push to `main` or use the **Run workflow** button on the `Build and Deploy` workflow in GitHub Actions.
 - CLI path (recommended for agents/humans): run `npm run deploy:dispatch -- --repo <owner/name> --ref <branch>` with `GITHUB_TOKEN` exported. This calls the workflow dispatch API for `.github/workflows/deploy.yml`.
 - Required env: `GITHUB_TOKEN` (repo scope), optionally `GITHUB_REPOSITORY` to avoid passing `--repo`. The script reports failures with the API response body for quick debugging.
-- Vite is set to a relative `base` (`./`) so assets resolve under GitHub Pages subpaths like `/repo-name/`; keep this unless you have a custom domain at the root.
+- Vite is set to the repository `base` (`/Vib3--blog-2/`) so assets resolve under the GitHub Pages subpath; keep this unless you move to a custom root domain.
 - Ensure GitHub Pages is enabled in repo settings and configured to use **GitHub Actions** as the source before dispatching.
 - The in-app Ops Dashboard now has a **Deploy** tab with a copy-to-clipboard command builder (no secrets stored) plus local-only logging of your last dispatch status for quick rehearsal.
 

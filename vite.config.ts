@@ -5,8 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      // Use a relative base so GitHub Pages and subpath deployments resolve assets correctly.
-      base: './',
+      // Explicit base path for GitHub Pages deployment (repository subpath).
+      base: '/Vib3--blog-2/',
       server: {
         port: 3000,
         host: '0.0.0.0',
