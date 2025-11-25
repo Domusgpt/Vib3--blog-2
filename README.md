@@ -19,6 +19,7 @@ Revolver-driven, WebGL-backed blog experience with morphing feature cards, GSAP 
 - Enable GitHub Pages → Source: **GitHub Actions**. Ensure the default branch is `main` (or update the workflow ref if you ship from another branch).
 - The workflow builds with `npm ci && npm run build`, uploads `dist/` as the Pages artifact, and deploys via `actions/deploy-pages` on pushes to `main` or manual dispatch.
 - Vite is configured with the repository `base` (`/Vib3--blog-2/`) so assets resolve correctly on GitHub Pages.
+- No-Actions fallback: run `npm run build:pages` to emit a static bundle into `/docs` (with a `404.html` SPA fallback). Set Pages source to `/docs` if you want an immediate deploy without enabling the workflow.
 - If you change dependencies, commit the updated `package-lock.json` so the CI cache and installs stay deterministic.
 - To trigger a deploy without a commit, export a repo-scoped `GITHUB_TOKEN` and run:
   ```bash
@@ -27,11 +28,11 @@ Revolver-driven, WebGL-backed blog experience with morphing feature cards, GSAP 
   You can also hit **Run workflow** in GitHub Actions UI. The Ops Dashboard now includes a Deploy tab with a copy-ready command builder that never stores secrets.
 
 ## Documentation
-- [Architecture](docs/ARCHITECTURE.md): component map, event/state flow, and extensibility notes.
-- [Content & Operations](docs/CONTENT_OPERATIONS.md): how to add sections, cards, QA data, and copy guidelines.
-- [Blog Readiness & Roadmap](docs/BLOG_READINESS.md): current coverage vs. what’s left for a full production blog.
-- [Operations Runbook](docs/OPERATIONS_RUNBOOK.md): auth, editor dashboard, comments, JSON pipelines, and observability targets.
-- [Publication Platform](docs/PUBLISHING_PLATFORM.md): governance, SEO, distribution, and collaboration standards for a professional launch.
+- [Architecture](handbook/ARCHITECTURE.md): component map, event/state flow, and extensibility notes.
+- [Content & Operations](handbook/CONTENT_OPERATIONS.md): how to add sections, cards, QA data, and copy guidelines.
+- [Blog Readiness & Roadmap](handbook/BLOG_READINESS.md): current coverage vs. what’s left for a full production blog.
+- [Operations Runbook](handbook/OPERATIONS_RUNBOOK.md): auth, editor dashboard, comments, JSON pipelines, and observability targets.
+- [Publication Platform](handbook/PUBLISHING_PLATFORM.md): governance, SEO, distribution, and collaboration standards for a professional launch.
 
 ## Testing & QA Expectations
 - Run `npm run build` before committing content or interaction changes.

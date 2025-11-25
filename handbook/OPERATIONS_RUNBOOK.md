@@ -50,6 +50,7 @@ This runbook summarizes how the VIB3 blog should evolve toward a fully managed, 
 - Required env: `GITHUB_TOKEN` (repo scope), optionally `GITHUB_REPOSITORY` to avoid passing `--repo`. The script reports failures with the API response body for quick debugging.
 - Vite is set to the repository `base` (`/Vib3--blog-2/`) so assets resolve under the GitHub Pages subpath; keep this unless you move to a custom root domain.
 - Ensure GitHub Pages is enabled in repo settings and configured to use **GitHub Actions** as the source before dispatching.
+- If Actions are disabled, run `npm run build:pages` and point Pages to the `/docs` folder; the script drops a `.nojekyll` file and `404.html` for SPA routing.
 - The in-app Ops Dashboard now has a **Deploy** tab with a copy-to-clipboard command builder (no secrets stored) plus local-only logging of your last dispatch status for quick rehearsal.
 
 ## 8) Collaboration with AI Agents
@@ -57,4 +58,4 @@ This runbook summarizes how the VIB3 blog should evolve toward a fully managed, 
 - Support assignment tags, due dates, and quick AI assist actions (summarize/expand/suggest titles) with human confirmation.
 - Roadmap/progress indicators should tie scheduled tasks to publish milestones and QA gates.
 
-Use this runbook alongside `docs/BLOG_READINESS.md` and `docs/CONTENT_OPERATIONS.md` to align human editors and scheduled agents.
+Use this runbook alongside `handbook/BLOG_READINESS.md` and `handbook/CONTENT_OPERATIONS.md` to align human editors and scheduled agents.
