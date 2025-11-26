@@ -20,6 +20,7 @@ const App: React.FC = () => {
     const activeSectionId = SECTIONS[activeSection].id as keyof typeof VISUALIZER_PROFILES;
     const [isMobileNav, setIsMobileNav] = useState(false);
     const [isPortrait, setIsPortrait] = useState(false);
+    const [safeBottom, setSafeBottom] = useState('0px');
 
     useEffect(() => {
         const syncViewport = () => {
@@ -27,6 +28,8 @@ const App: React.FC = () => {
             const height = window.innerHeight;
             setIsMobileNav(width < 980);
             setIsPortrait(height >= width);
+            const inset = getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom') || '0px';
+            setSafeBottom(inset.trim());
         };
 
         syncViewport();
@@ -101,7 +104,8 @@ const App: React.FC = () => {
             />
 
             <main
-                className={`relative z-10 w-full min-h-screen pb-28 transition-all duration-200 ${isGlitching ? 'opacity-0 blur-md scale-95' : 'opacity-100 blur-0 scale-100'}`}
+                className={`relative z-10 w-full min-h-screen transition-all duration-200 ${isGlitching ? 'opacity-0 blur-md scale-95' : 'opacity-100 blur-0 scale-100'}`}
+                style={{ paddingBottom: `calc(7rem + ${safeBottom})` }}
             >
                 <VibSection sectionId={activeSectionId} visualizerRef={visualizerRef} isPortrait={isPortrait} />
             </main>
@@ -110,6 +114,22 @@ const App: React.FC = () => {
 
             <div className="fixed inset-x-0 bottom-0 flex justify-end z-30 px-5 pb-4 pointer-events-none">
                 <div className="flex items-center gap-3 pointer-events-auto">
+                    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 shadow-lg">
+                        <button
+                            onClick={() => handleNavigate('prev')}
+                            className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-white/15"
+                            aria-label="Previous section"
+                        >
+                            ← Prev
+                        </button>
+                        <button
+                            onClick={() => handleNavigate('next')}
+                            className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-white/15"
+                            aria-label="Next section"
+                        >
+                            Next →
+                        </button>
+                    </div>
                     <div className="hidden sm:flex flex-col text-right text-[11px] uppercase tracking-[0.3em] text-white/60 font-mono">
                         <span>swipe or tap nav to move</span>
                         <span className="text-white/40">mobile-ready + portrait safe</span>

@@ -8,12 +8,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=DM+Sans:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
-      
+
       :root {
         --aqua-bright: #4FC3F7;
         --aqua-soft: #80DEEA;
         --teal: #26A69A;
         --purple: #7B3FF2;
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
       }
 
       body {
@@ -27,6 +28,10 @@
         min-height: 100vh;
         width: 100vw;
         user-select: none; /* App-like feel */
+      }
+
+      .safe-area-padding {
+        padding-bottom: calc(1rem + var(--safe-bottom));
       }
 
       h1, h2, h3, h4, h5, h6 {

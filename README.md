@@ -39,6 +39,7 @@ Revolver-driven, WebGL-backed blog experience with morphing feature cards, GSAP 
 - Validate GSAP ScrollTrigger behavior on the 800vh focus-content card (hero section) and ensure Escape closes morphing cards.
 - Exercise the Ops Dashboard publishing tab to confirm SEO, governance, and distribution checklists render as expected.
 - Verify revolver navigation via scroll, hover, and keyboard gestures; confirm Telemetry HUD reflects the active section profile.
+- Confirm navigation resilience on mobile/portrait: swipes, arrow keys, and the bottom quick-nav buttons should all advance sections without clipping; safe-area padding keeps controls visible on devices with notches.
 
 ## Visual Notes
 - Gradients, glow, and density respond to the visualizer profiles in `constants.ts`.

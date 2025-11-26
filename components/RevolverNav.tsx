@@ -14,8 +14,11 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect,
     const [isVisible, setIsVisible] = useState(false);
     const navRef = useRef<HTMLDivElement>(null);
     const cylinderRef = useRef<HTMLDivElement>(null);
+    const mobileRailRef = useRef<HTMLDivElement>(null);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastScrollY = useRef(0);
+    const touchStartX = useRef<number | null>(null);
+    const touchStartTime = useRef<number | null>(null);
 
     // Hexagonal Cylinder Config
     const radius = 30; // Tight radius for a thin bezel
@@ -46,6 +49,57 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect,
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, [isMobile]);
+
+    useEffect(() => {
+        const handleKey = (event: KeyboardEvent) => {
+            if (event.key === 'ArrowLeft') {
+                onSectionSelect((activeIndex - 1 + SECTIONS.length) % SECTIONS.length);
+            }
+            if (event.key === 'ArrowRight') {
+                onSectionSelect((activeIndex + 1) % SECTIONS.length);
+            }
+        };
+
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, [activeIndex, isMobile, onSectionSelect]);
+
+    useEffect(() => {
+        if (!isMobile) return;
+
+        const handleTouchStart = (event: TouchEvent) => {
+            if (!event.touches[0]) return;
+            touchStartX.current = event.touches[0].clientX;
+            touchStartTime.current = Date.now();
+        };
+
+        const handleTouchEnd = (event: TouchEvent) => {
+            if (touchStartX.current === null || touchStartTime.current === null) return;
+
+            const deltaX = (event.changedTouches[0]?.clientX || 0) - touchStartX.current;
+            const deltaTime = Date.now() - touchStartTime.current;
+
+            if (deltaTime < 600 && Math.abs(deltaX) > 50) {
+                if (deltaX < 0) {
+                    onSectionSelect((activeIndex + 1) % SECTIONS.length);
+                } else {
+                    onSectionSelect((activeIndex - 1 + SECTIONS.length) % SECTIONS.length);
+                }
+            }
+
+            touchStartX.current = null;
+            touchStartTime.current = null;
+        };
+
+        const target = mobileRailRef.current || window;
+        target.addEventListener('touchstart', handleTouchStart, { passive: true });
+        target.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        return () => {
+            target.removeEventListener('touchstart', handleTouchStart);
+            target.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, [activeIndex, isMobile, onSectionSelect]);
 
     const showNav = () => {
         setIsVisible(true);
@@ -90,11 +144,20 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect,
     if (isMobile) {
         return (
             <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 pointer-events-none">
-                <div className="pointer-events-auto bg-slate-950/95 border border-white/10 backdrop-blur-xl rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.45)] p-3 space-y-2">
+                <div
+                    ref={mobileRailRef}
+                    className="pointer-events-auto bg-slate-950/95 border border-white/10 backdrop-blur-xl rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.45)] p-3 space-y-2"
+                    style={{ paddingBottom: 'calc(12px + var(--safe-bottom))' }}
+                >
+                    <div className="flex items-center justify-between gap-2 text-[11px] font-mono uppercase tracking-[0.25em] text-slate-400">
+                        <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-cyan-400" />Navigation</span>
+                        <span className="text-slate-500">swipe • tap • arrows</span>
+                    </div>
                     <div className="flex items-center justify-between gap-2">
                         <button
                             onClick={() => onSectionSelect((activeIndex - 1 + SECTIONS.length) % SECTIONS.length)}
                             className="px-3 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-white/10"
+                            aria-label="Previous section"
                         >
                             Prev
                         </button>
@@ -106,6 +169,7 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect,
                                         key={section.id}
                                         onClick={() => onSectionSelect(index)}
                                         className={`px-4 py-2 rounded-2xl border text-[11px] font-semibold whitespace-nowrap transition-all duration-200 ${isActive ? 'bg-cyan-500/20 border-cyan-400/60 text-white shadow-[0_0_0_1px_rgba(103,232,249,0.45)]' : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'}`}
+                                        aria-current={isActive}
                                     >
                                         <span className="font-mono mr-2 text-xs opacity-80">{section.icon}</span>
                                         {section.title}
@@ -116,6 +180,7 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect,
                         <button
                             onClick={() => onSectionSelect((activeIndex + 1) % SECTIONS.length)}
                             className="px-3 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-white/10"
+                            aria-label="Next section"
                         >
                             Next
                         </button>
