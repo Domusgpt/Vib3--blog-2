@@ -6,9 +6,11 @@ import { SECTIONS } from '../constants';
 interface RevolverNavProps {
     activeIndex: number;
     onSectionSelect: (index: number) => void;
+    isMobile?: boolean;
+    isPortrait?: boolean;
 }
 
-const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect }) => {
+const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect, isMobile = false, isPortrait = false }) => {
     const [isVisible, setIsVisible] = useState(false);
     const navRef = useRef<HTMLDivElement>(null);
     const cylinderRef = useRef<HTMLDivElement>(null);
@@ -21,9 +23,16 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect 
 
     // --- Visibility & Auto-Hide Logic ---
     useEffect(() => {
+        setIsVisible(true);
+        resetAutoHide();
+    }, []);
+
+    useEffect(() => {
+        if (isMobile) return;
+
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
-            
+
             // Detect Scroll UP (reveal) or Top of page
             if (currentScrollY < lastScrollY.current || currentScrollY < 50) {
                 showNav();
@@ -36,7 +45,7 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect 
 
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [isMobile]);
 
     const showNav = () => {
         setIsVisible(true);
@@ -56,8 +65,8 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect 
 
     // --- Animations ---
     useEffect(() => {
-        if (!navRef.current) return;
-        
+        if (!navRef.current || isMobile) return;
+
         // Slide bezel in/out
         gsap.to(navRef.current, {
             y: isVisible ? 0 : '-120%',
@@ -65,7 +74,7 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect 
             duration: 0.6,
             ease: "power3.inOut"
         });
-    }, [isVisible]);
+    }, [isVisible, isMobile]);
 
     useEffect(() => {
         if (!cylinderRef.current) return;
@@ -77,6 +86,47 @@ const RevolverNav: React.FC<RevolverNavProps> = ({ activeIndex, onSectionSelect 
             ease: "elastic.out(1, 0.7)",
         });
     }, [activeIndex, theta]);
+
+    if (isMobile) {
+        return (
+            <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 pointer-events-none">
+                <div className="pointer-events-auto bg-slate-950/95 border border-white/10 backdrop-blur-xl rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.45)] p-3 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                        <button
+                            onClick={() => onSectionSelect((activeIndex - 1 + SECTIONS.length) % SECTIONS.length)}
+                            className="px-3 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-white/10"
+                        >
+                            Prev
+                        </button>
+                        <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar">
+                            {SECTIONS.map((section, index) => {
+                                const isActive = index === activeIndex;
+                                return (
+                                    <button
+                                        key={section.id}
+                                        onClick={() => onSectionSelect(index)}
+                                        className={`px-4 py-2 rounded-2xl border text-[11px] font-semibold whitespace-nowrap transition-all duration-200 ${isActive ? 'bg-cyan-500/20 border-cyan-400/60 text-white shadow-[0_0_0_1px_rgba(103,232,249,0.45)]' : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'}`}
+                                    >
+                                        <span className="font-mono mr-2 text-xs opacity-80">{section.icon}</span>
+                                        {section.title}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <button
+                            onClick={() => onSectionSelect((activeIndex + 1) % SECTIONS.length)}
+                            className="px-3 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-white/10"
+                        >
+                            Next
+                        </button>
+                    </div>
+                    <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-center text-slate-400">
+                        Swipe or tap • Portrait safe mode {isPortrait ? 'on' : 'off'}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <nav

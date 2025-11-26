@@ -10,9 +10,10 @@ import FocusContentCard from '../ui/FocusContentCard';
 interface VibSectionProps {
     sectionId: SectionId;
     visualizerRef: React.RefObject<VisualizerRef | null>;
+    isPortrait?: boolean;
 }
 
-const VibSection: React.FC<VibSectionProps> = ({ sectionId, visualizerRef }) => {
+const VibSection: React.FC<VibSectionProps> = ({ sectionId, visualizerRef, isPortrait = false }) => {
     const data = SECTION_CONTENT[sectionId];
     const accent = data?.accent || '#67e8f9';
     const baseProfile = VISUALIZER_PROFILES[sectionId];
@@ -46,14 +47,14 @@ const VibSection: React.FC<VibSectionProps> = ({ sectionId, visualizerRef }) => 
     const focusContent = useMemo(() => data.focusContent, [data]);
 
     return (
-        <div className="w-full h-full overflow-y-auto custom-scrollbar relative">
+        <div className="w-full min-h-screen overflow-visible pb-24 custom-scrollbar relative">
             <div className={`absolute inset-0 bg-gradient-to-br ${data.gradient} opacity-80`} />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08),transparent_40%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_40%,rgba(255,255,255,0.05),transparent_45%)]" />
 
-            <div className="relative z-10 min-h-full px-6 md:px-10 py-12 space-y-10">
+            <div className="relative z-10 min-h-full px-4 sm:px-6 md:px-10 py-12 space-y-10">
                 {/* header */}
-                <header className="grid md:grid-cols-[1.2fr_1fr] gap-6 items-start">
+                <header className={`grid gap-6 items-start ${isPortrait ? 'grid-cols-1' : 'md:grid-cols-[1.2fr_1fr]'}`}>
                     <div className="space-y-4">
                         <div className="flex items-center gap-3 text-xs uppercase tracking-[0.4em] text-slate-400 font-mono">
                             <span>{data.badge}</span>

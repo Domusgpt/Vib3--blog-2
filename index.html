@@ -22,8 +22,9 @@
         background-color: #020617;
         color: white;
         font-family: 'Inter', sans-serif;
-        overflow: hidden;
-        height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        min-height: 100vh;
         width: 100vw;
         user-select: none; /* App-like feel */
       }
@@ -51,6 +52,8 @@
       .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(79, 195, 247, 0.2); border-radius: 2px; }
       .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(79, 195, 247, 0.5); }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
       /* --- VAPORWAVE / GLITCH FX --- */
 
