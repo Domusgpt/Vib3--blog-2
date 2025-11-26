@@ -19,7 +19,7 @@ Revolver-driven, WebGL-backed blog experience with morphing feature cards, GSAP 
 - Enable GitHub Pages → Source: **GitHub Actions**. Ensure the default branch is `main` (or update the workflow ref if you ship from another branch).
 - The workflow builds with `npm ci && npm run build`, uploads `dist/` as the Pages artifact, and deploys via `actions/deploy-pages` on pushes to `main` or manual dispatch.
 - Vite is configured with the repository `base` (`/Vib3--blog-2/`) so assets resolve correctly on GitHub Pages.
-- No-Actions fallback: run `npm run build:pages` to emit a static bundle into `/docs` (with a `404.html` SPA fallback). Set Pages source to `/docs` if you want an immediate deploy without enabling the workflow.
+- No-Actions fallback: run `npm run build:pages` to emit a static bundle into `/docs` (with a `404.html` SPA fallback). Set Pages source to `/docs` if you want an immediate deploy without enabling the workflow; the root index will auto-redirect to `/docs` when served statically so you don’t see a blank screen if Pages is pointed at the repo root.
 - If you change dependencies, commit the updated `package-lock.json` so the CI cache and installs stay deterministic.
 - To trigger a deploy without a commit, export a repo-scoped `GITHUB_TOKEN` and run:
   ```bash

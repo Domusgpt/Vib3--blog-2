@@ -160,6 +160,15 @@
         }
       }
     </script>
+    <script>
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const hasBuiltAsset = !!document.querySelector('script[src*="assets/index-"]');
+      const isDocsPath = window.location.pathname.includes('/docs/');
+      if (!isLocal && !hasBuiltAsset && !isDocsPath) {
+        const base = window.location.pathname.replace(/\/$/, '');
+        window.location.replace(`${base}/docs/`);
+      }
+    </script>
     <script type="module" src="/index.tsx"></script>
   </head>
   <body>
